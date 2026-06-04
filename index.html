@@ -1888,6 +1888,24 @@ function track(goal, params) {
   } catch (e) { /* analytics — never break the page */ }
 }
 
+/* AlphaCRM iframe lead listener — fires `lead` goal when CRM form is submitted */
+(function() {
+  var fired = false;
+  window.addEventListener('message', function(e) {
+    try {
+      if (!e.origin) return;
+      if (!/s20\.online|alfacrm\.pro/i.test(e.origin)) return;
+      var d = e.data;
+      var raw = typeof d === 'string' ? d : JSON.stringify(d || {});
+      if (!/success|submit|sent|complete|finish|thank|lead|spasibo/i.test(raw)) return;
+      if (fired) return;
+      fired = true;
+      setTimeout(function() { fired = false; }, 30000);
+      track('lead', { city: localStorage.getItem('city') || 'chelny' });
+    } catch (err) { /* ignore */ }
+  }, false);
+})();
+
 /* ══════════════════════════════
    CITY CONFIG
    Заполните данные для каждого города:
