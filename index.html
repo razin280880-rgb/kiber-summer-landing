@@ -1205,7 +1205,6 @@ body {
 <div class="urgency-bar">
   <div class="msg">🔥 Скидка 2 000 ₽ сгорает через:</div>
   <div class="countdown-inline">
-    <div class="ci-block"><span class="ci-n" id="c-d">07</span><span class="ci-u">дней</span></div>
     <div class="ci-block"><span class="ci-n" id="c-h">00</span><span class="ci-u">часов</span></div>
     <div class="ci-block"><span class="ci-n" id="c-m">00</span><span class="ci-u">минут</span></div>
     <div class="ci-block"><span class="ci-n" id="c-s">00</span><span class="ci-u">сек</span></div>
@@ -1991,21 +1990,19 @@ function refreshCrmIframe(iframeId, placement, leadType) {
   setCity(def);
 })();
 
-/* Countdown — авто-дедлайн: последний день СЛЕДУЮЩЕГО месяца.
-   1-го числа каждого месяца дедлайн сам сдвигается. */
+/* Countdown — дедлайн скидки = конец текущего дня (23:59:59).
+   В полночь дедлайн сам сдвигается на следующий день. */
 function getPromoEnd() {
   const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth() + 2, 0, 23, 59, 59);
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 }
 function tick() {
   const now = new Date();
   const d = Math.max(0, getPromoEnd() - now);
-  const days = Math.floor(d / 86400000);
-  const hrs  = Math.floor((d % 86400000) / 3600000);
+  const hrs  = Math.floor(d / 3600000);
   const mins = Math.floor((d % 3600000) / 60000);
   const secs = Math.floor((d % 60000) / 1000);
   const p = n => String(n).padStart(2,'0');
-  document.getElementById('c-d').textContent = p(days);
   document.getElementById('c-h').textContent = p(hrs);
   document.getElementById('c-m').textContent = p(mins);
   document.getElementById('c-s').textContent = p(secs);
