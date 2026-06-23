@@ -196,27 +196,6 @@ body {
 }
 .hdr-logo .k { color: var(--blue2); }
 .hdr-logo .o { color: var(--cyan); }
-.city-select {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(37,99,235,.12);
-  border: 1px solid rgba(37,99,235,.3);
-  border-radius: 100px; padding: 6px 12px 6px 14px;
-  font-size: 13px; font-weight: 700; color: var(--text);
-  cursor: pointer; position: relative;
-}
-.city-select::before { content: '📍'; font-size: 13px; }
-.city-select select {
-  appearance: none; -webkit-appearance: none;
-  background: transparent; border: none; outline: none;
-  color: var(--text); font-family: 'Nunito', sans-serif;
-  font-size: 13px; font-weight: 700; cursor: pointer;
-  padding-right: 18px;
-}
-.city-select::after {
-  content: '▾'; position: absolute; right: 12px; pointer-events: none;
-  color: var(--cyan); font-size: 12px;
-}
-.city-select select option { background: #1a1f2e; color: var(--text); }
 .hdr-center {
   display: flex; align-items: center; gap: 6px;
   background: rgba(239,68,68,.12);
@@ -1184,17 +1163,6 @@ body {
 <!-- ══ STICKY HEADER ══ -->
 <header class="hdr">
   <div class="hdr-logo">KIBER<span class="o">one</span></div>
-  <label class="city-select" title="Выберите город">
-    <select id="citySel" onchange="setCity(this.value)">
-      <option value="chelny">Набережные Челны</option>
-      <option value="nizhnekamsk">Нижнекамск</option>
-      <option value="kazan">Казань</option>
-      <option value="elabuga">Елабуга</option>
-      <option value="krasnodar">Краснодар</option>
-      <option value="surgut">Сургут</option>
-      <option value="perm">Пермь</option>
-    </select>
-  </label>
   <div class="hdr-phone">
     <a id="hdrPhone" href="tel:+79274334966">+7 (927) 433-49-66</a>
     <button class="hdr-btn" onclick="openModal()">Записаться</button>
@@ -1928,7 +1896,6 @@ function setCity(code) {
   const c = CITIES[code];
   if (!c) return;
   localStorage.setItem('city', code);
-  document.getElementById('citySel').value = code;
   ['hdrPhone','footerPhone'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.href = c.tel; el.textContent = c.phone; }
@@ -2065,8 +2032,6 @@ document.querySelectorAll('a[href^="tel:"]').forEach(a => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('click', () => track('max_click', { city: localStorage.getItem('city') || 'chelny' }));
 });
-const citySel = document.getElementById('citySel');
-if (citySel) citySel.addEventListener('change', () => track('city_changed', { city: citySel.value }));
 </script>
 </body>
 </html>
