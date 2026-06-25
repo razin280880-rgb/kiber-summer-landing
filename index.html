@@ -2033,5 +2033,12 @@ document.querySelectorAll('a[href^="tel:"]').forEach(a => {
   if (el) el.addEventListener('click', () => track('max_click', { city: localStorage.getItem('city') || 'chelny' }));
 });
 </script>
+
+<!-- KIBERone AI-assistant chat widget (Камилла) — лендинг КИБЕРканикул -->
+<script src="https://assistant.it-kiber.ru/widget.js"
+        data-api="https://assistant.it-kiber.ru"
+        data-greeting="Здравствуйте! Я Камилла из KIBERone. Помогу с КИБЕРканикулами — расскажу про смены, программу и запишу на пробный день. Для какого ребёнка интересуетесь?"
+        defer></script>
+
 </body>
 </html>
