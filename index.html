@@ -1855,22 +1855,106 @@ function track(goal, params) {
   } catch (e) { /* analytics — never break the page */ }
 }
 
-/* AlphaCRM iframe lead listener — fires `lead` goal when CRM form is submitted */
-(function() {
-  var fired = false;
+/* ══════════════════════════════
+   FIRST-TOUCH UTM PERSISTENCE
+   Сохраняем UTM/yclid из URL при первом заходе на 30 дней.
+   Если человек ушёл и вернулся напрямую — атрибуция сохранится
+   (last-touch не убьёт first-touch источник из Директа/VK Ads/Avito).
+═══════════════════════════════ */
+const UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','yclid','gclid','ymclid'];
+const UTM_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+(function persistFirstTouchUTM() {
+  try {
+    const cur = new URLSearchParams(location.search);
+    const captured = {};
+    UTM_KEYS.forEach(k => { const v = cur.get(k); if (v) captured[k] = v; });
+    if (!Object.keys(captured).length) return;
+    let existing = null;
+    try { existing = JSON.parse(localStorage.getItem('utm_first') || 'null'); } catch (e) {}
+    const now = Date.now();
+    if (existing && existing.ts && (now - existing.ts) < UTM_TTL_MS) return; // first-touch wins
+    localStorage.setItem('utm_first', JSON.stringify({ ts: now, params: captured }));
+  } catch (e) {}
+})();
+
+function getStoredUTM() {
+  try {
+    const s = JSON.parse(localStorage.getItem('utm_first') || 'null');
+    if (!s || !s.ts) return {};
+    if ((Date.now() - s.ts) > UTM_TTL_MS) return {};
+    return s.params || {};
+  } catch (e) { return {}; }
+}
+
+/* ══════════════════════════════
+   YANDEX METRIKA clientID
+   Привязка лида к визиту в Метрике для обратной выгрузки
+   и связки CRM ↔ кампания Директа/Avito/VK Ads.
+═══════════════════════════════ */
+let _ymUid = null;
+(function captureYmUid() {
+  // 1) Async через Метрику (если уже инициализирована)
+  try {
+    if (window.METRIKA_ID && window.ym) {
+      window.ym(window.METRIKA_ID, 'getClientID', function(id) { if (id) _ymUid = id; });
+    }
+  } catch (e) {}
+  // 2) Fallback — читаем cookie _ym_uid напрямую
+  try {
+    const m = document.cookie.match(/(?:^|;\s*)_ym_uid=([^;]+)/);
+    if (!_ymUid && m) _ymUid = m[1];
+  } catch (e) {}
+})();
+
+function getYmClientId() {
+  if (_ymUid) return _ymUid;
+  try {
+    const m = document.cookie.match(/(?:^|;\s*)_ym_uid=([^;]+)/);
+    return m ? m[1] : null;
+  } catch (e) { return null; }
+}
+
+/* ══════════════════════════════
+   LEAD DETECTION
+   Два независимых сигнала отправки формы AlphaCRM (срабатывает любой):
+   1. postMessage от s20.online / alfacrm.pro с ключевым словом success/submit/…
+   2. Повторный load iframe (после сабмита AlphaCRM перерисовывает экран благодарности).
+   refreshCrmIframe сбрасывает loadCount при каждой нашей смене src,
+   так что счёт «1 = форма открылась, 2 = форма отправлена».
+═══════════════════════════════ */
+(function attachLeadDetection() {
+  let fired = false;
+  function fire(placement, source) {
+    if (fired) return;
+    fired = true;
+    setTimeout(function() { fired = false; }, 60000);
+    try { console.log('[lead] fired via', source, 'placement=', placement); } catch (e) {}
+    track('lead', { city: localStorage.getItem('city') || 'chelny', placement: placement, src: source });
+  }
+
+  // Signal 1: postMessage
   window.addEventListener('message', function(e) {
     try {
-      if (!e.origin) return;
-      if (!/s20\.online|alfacrm\.pro/i.test(e.origin)) return;
-      var d = e.data;
-      var raw = typeof d === 'string' ? d : JSON.stringify(d || {});
-      if (!/success|submit|sent|complete|finish|thank|lead|spasibo/i.test(raw)) return;
-      if (fired) return;
-      fired = true;
-      setTimeout(function() { fired = false; }, 30000);
-      track('lead', { city: localStorage.getItem('city') || 'chelny' });
-    } catch (err) { /* ignore */ }
+      if (!e.origin || !/s20\.online|alfacrm\.pro/i.test(e.origin)) return;
+      var raw = typeof e.data === 'string' ? e.data : JSON.stringify(e.data || {});
+      try { console.log('[crm-msg]', e.origin, e.data); } catch (err) {}
+      if (!/success|submit|sent|complete|finish|thank|lead|spasibo|order|application/i.test(raw)) return;
+      var modalOn = document.querySelector('.modal-ov.on');
+      fire(modalOn ? 'modal' : 'main', 'postMessage');
+    } catch (err) {}
   }, false);
+
+  // Signal 2: iframe load counter
+  ['crmMain', 'crmModal'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('load', function() {
+      var n = parseInt(el.dataset.loadCount || '0', 10) + 1;
+      el.dataset.loadCount = String(n);
+      if (n >= 2) fire(id === 'crmMain' ? 'main' : 'modal', 'iframe-load');
+    });
+  });
 })();
 
 /* ══════════════════════════════
@@ -1929,13 +2013,25 @@ const CRM_FIXED = { id: '8', baseColor: '205EDC', borderRadius: '8', css: '//cdn
 function buildCrmUrl(placement, leadType) {
   const city = localStorage.getItem('city') || 'chelny';
   const cur  = new URLSearchParams(location.search);
+  const stored = getStoredUTM();
+  const pick = (key, fallback) => cur.get(key) || stored[key] || fallback;
   const params = new URLSearchParams();
   Object.entries(CRM_FIXED).forEach(([k,v]) => params.set(k, v));
-  params.set('utm_source',   cur.get('utm_source')   || 'landing');
-  params.set('utm_medium',   cur.get('utm_medium')   || 'website');
-  params.set('utm_campaign', cur.get('utm_campaign') || 'kiber-summer-landing');
-  params.set('utm_content',  cur.get('utm_content')  || city);
-  params.set('utm_term',     cur.get('utm_term')     || (leadType + '_' + placement));
+  // Приоритет: текущий URL → first-touch (localStorage) → дефолт
+  params.set('utm_source',   pick('utm_source',   'landing'));
+  params.set('utm_medium',   pick('utm_medium',   'website'));
+  params.set('utm_campaign', pick('utm_campaign', 'kiber-summer-landing'));
+  params.set('utm_content',  pick('utm_content',  city));
+  params.set('utm_term',     pick('utm_term',     leadType + '_' + placement));
+  // Метка клика Яндекс.Директа — пробрасываем как есть
+  const yclid = pick('yclid', null);
+  if (yclid) params.set('yclid', yclid);
+  // Метка клика Google Ads — на будущее
+  const gclid = pick('gclid', null);
+  if (gclid) params.set('gclid', gclid);
+  // clientID Метрики — для связки лида в CRM с конкретным визитом
+  const ymUid = getYmClientId();
+  if (ymUid) params.set('ym_uid', ymUid);
   return CRM_BASE + '?' + params.toString();
 }
 
@@ -1944,6 +2040,7 @@ function refreshCrmIframe(iframeId, placement, leadType) {
   if (!el) return;
   const url = buildCrmUrl(placement, leadType);
   if (el.dataset.url !== url) {
+    el.dataset.loadCount = '0'; // сброс счётчика перед нашей сменой src
     el.src = url;
     el.dataset.url = url;
   }
