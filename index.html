@@ -1156,6 +1156,15 @@ body {
 @media (max-width: 400px) {
   .hero h1 { font-size: 26px; }
 }
+
+/* ══════════════════════════════════════════
+   AI-ASSISTANT WIDGET — поднять над mobile-bar
+   На мобиле виджет «Камилла» (bottom: 16px) перекрывал
+   .mobile-bar (~74px высотой). Поднимаем лаунчер выше панели.
+══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .kbr-widget-root { bottom: 88px !important; }
+}
   </style>
 </head>
 <body>
