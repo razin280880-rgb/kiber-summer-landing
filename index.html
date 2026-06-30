@@ -1165,6 +1165,199 @@ body {
 @media (max-width: 640px) {
   .kbr-widget-root { bottom: 88px !important; }
 }
+
+/* ══════════════════════════════════════════
+   PHOTO BLOCKS (added)
+══════════════════════════════════════════ */
+.camp-banner {
+  position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+  margin-top: -10px;
+}
+.camp-banner-inner {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+@media (min-width: 700px) {
+  .camp-banner-inner { aspect-ratio: 20 / 9; }
+}
+@media (min-width: 1000px) {
+  .camp-banner-inner { aspect-ratio: 24 / 9; }
+}
+.camp-banner-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.camp-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(7, 8, 15, 0.75) 0%, rgba(37, 99, 235, 0.25) 40%, transparent 80%);
+}
+.camp-banner-content {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.camp-banner-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: rgba(7, 8, 15, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(37, 99, 235, 0.4);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+}
+.camp-banner-tag .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+  animation: campDot 1.6s ease-in-out infinite;
+}
+@keyframes campDot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25); }
+  50% { opacity: 0.85; box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.05); }
+}
+.camp-banner-meta {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.92;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+@media (min-width: 700px) {
+  .camp-banner-tag { font-size: 14px; padding: 12px 22px; }
+  .camp-banner-meta { font-size: 14px; }
+}
+
+/* HERO mini-social (на тёмном) */
+.hero-mini-social {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 22px;
+  padding: 8px 14px 8px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  border-radius: 100px;
+}
+.hero-mini-avatars { display: flex; }
+.hero-mini-avatars img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--bg);
+  margin-left: -8px;
+}
+.hero-mini-avatars img:first-child { margin-left: 0; }
+.hero-mini-text {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.hero-mini-text strong { color: var(--text); }
+
+/* DAY GALLERY (под schedule) */
+.day-gallery {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 600px) {
+  .day-gallery { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+@media (min-width: 900px) {
+  .day-gallery { grid-template-columns: repeat(3, 1fr); }
+}
+.day-gallery-item {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+.day-gallery-item:hover {
+  transform: translateY(-4px);
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 16px 40px rgba(37, 99, 235, 0.25);
+}
+.day-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.day-gallery-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 28px 14px 12px;
+  background: linear-gradient(180deg, transparent 0%, rgba(7, 8, 15, 0.92) 100%);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: left;
+}
+.day-gallery-caption span {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* FINALE BIG PHOTO (в траст-секции) */
+.finale-photo {
+  margin: 40px auto 0;
+  max-width: 920px;
+  border-radius: 24px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+.finale-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.finale-photo-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 32px 24px 20px;
+  background: linear-gradient(180deg, transparent 0%, rgba(7, 8, 15, 0.9) 100%);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
   </style>
 </head>
 <body>
@@ -1198,6 +1391,14 @@ body {
   <div class="hero-inner">
     <div class="fi">
       <div class="hero-badge">🤖 AI — главный тренд 2026. Дайте ребёнку фору</div>
+      <div class="hero-mini-social">
+        <div class="hero-mini-avatars">
+          <img src="images/hero-mini-1.jpg" alt="" loading="lazy">
+          <img src="images/hero-mini-2.jpg" alt="" loading="lazy">
+          <img src="images/hero-mini-3.jpg" alt="" loading="lazy">
+        </div>
+        <div class="hero-mini-text"><strong>520 детей</strong> уже прошли<br>смены этим летом</div>
+      </div>
       <h1>
         Твой ребёнок создаст<br>
         <span class="grad-text">игру с ИИ</span><br>
@@ -1251,6 +1452,18 @@ body {
     </div>
   </div>
 </section>
+
+<!-- ══ CAMP BANNER ══ -->
+<div class="camp-banner">
+  <div class="camp-banner-inner">
+    <img src="images/camp-banner.jpg" alt="Дети в AI-лагере KIBERone — летние смены" loading="eager">
+    <div class="camp-banner-overlay"></div>
+    <div class="camp-banner-content">
+      <div class="camp-banner-tag"><span class="dot"></span> Идут смены в 7 городах</div>
+      <div class="camp-banner-meta">5 дней · 8–14 лет · группы до 12</div>
+    </div>
+  </div>
+</div>
 
 <!-- ══ NUMBERS ══ -->
 <div class="nums-strip">
@@ -1538,6 +1751,33 @@ body {
       <div class="sched-row"><span class="sched-time">14:30–16:00</span><span class="sched-text">🎬 Поход в кино или пикник на природе</span></div>
       <div class="sched-row"><span class="sched-time">16:20–18:00</span><span class="sched-text">🎲 Игры, квесты, мастер-классы</span></div>
     </div>
+
+    <div class="day-gallery fi">
+      <figure class="day-gallery-item">
+        <img src="images/day-1.jpg" alt="Дети работают над IT-проектом" loading="lazy">
+        <figcaption class="day-gallery-caption">Работа над проектом<span>09:30 – 12:00</span></figcaption>
+      </figure>
+      <figure class="day-gallery-item">
+        <img src="images/day-2.jpg" alt="Обед в кафе" loading="lazy">
+        <figcaption class="day-gallery-caption">Обед в кафе<span>12:30 – 13:30</span></figcaption>
+      </figure>
+      <figure class="day-gallery-item">
+        <img src="images/day-3.jpg" alt="Прогулка на свежем воздухе" loading="lazy">
+        <figcaption class="day-gallery-caption">Прогулка<span>13:30 – 14:30</span></figcaption>
+      </figure>
+      <figure class="day-gallery-item">
+        <img src="images/day-4.jpg" alt="Экскурсия в музей" loading="lazy">
+        <figcaption class="day-gallery-caption">Экскурсия или кино<span>14:30 – 16:00</span></figcaption>
+      </figure>
+      <figure class="day-gallery-item">
+        <img src="images/day-5.jpg" alt="Квесты и командные игры" loading="lazy">
+        <figcaption class="day-gallery-caption">Квесты и игры<span>16:20 – 18:00</span></figcaption>
+      </figure>
+      <figure class="day-gallery-item">
+        <img src="images/day-6.jpg" alt="Командная работа над финальным проектом" loading="lazy">
+        <figcaption class="day-gallery-caption">Командная защита<span>Пятница</span></figcaption>
+      </figure>
+    </div>
   </div>
 </section>
 
@@ -1672,6 +1912,11 @@ body {
         <div class="trust-desc">Сопровождение, организованное питание, проверенные площадки. Дети под присмотром</div>
       </div>
     </div>
+
+    <figure class="finale-photo fi">
+      <img src="images/finale-photo.jpg" alt="Финал смены — дети с проектами и сертификатами" loading="lazy">
+      <figcaption class="finale-photo-caption">В пятницу — церемония защиты проектов и сертификаты каждому</figcaption>
+    </figure>
   </div>
 </section>
 
